@@ -22,25 +22,8 @@
   <div class="mobile-controls" aria-label="方向控制"><button class="dpad up" data-dir="up">↑</button><button class="dpad left" data-dir="left">←</button><button class="dpad down" data-dir="down">↓</button><button class="dpad right" data-dir="right">→</button></div>
   <p class="tip">慢慢来，<span>小蛇也有自己的节奏</span></p>
 </main>
-<audio id="bgm" loop>
-    <source src="bgm.mp3" type="audio/mpeg">
-``
-<button id="musicBtn" style="position:absolute;top:10px;left:10px;z-index:9999;background:#2b3b2d;color:#fff;border:none;padding:6px 10px;border-radius:8px;cursor:pointer;">关闭音乐</button>
 <script>
-(()=>{const bgm = document.getElementById('bgm');
-const musicBtn = document.getElementById('musicBtn');
-let musicOn = true;
-musicBtn.onclick = ()=>{
-  if(musicOn){
-    bgm.pause();
-    musicBtn.textContent="打开音乐";
-  }else{
-    bgm.play().catch(e=>{});
-    musicBtn.textContent="关闭音乐";
-  }
-  musicOn = !musicOn;
-}
-
+(()=>{
 const canvas=document.querySelector('#game'),ctx=canvas.getContext('2d'),overlay=document.querySelector('#overlay'),startBtn=document.querySelector('#start');
 const headArt=new Image(),foodArt=new Image();headArt.src='蛇头.png';foodArt.src='苹果人头.png';
 const N=21,S=20;let snake,dir,nextDir,food,score,eaten,timer,state='ready',sound=true,audio;
@@ -58,10 +41,7 @@ function draw(){let z=canvas.width/N;ctx.clearRect(0,0,canvas.width,canvas.heigh
 function tone(freq=540,duration=.07){if(!sound)return;try{audio??=new(window.AudioContext||window.webkitAudioContext)();let o=audio.createOscillator(),g=audio.createGain();o.connect(g);g.connect(audio.destination);o.frequency.value=freq;o.type='sine';g.gain.setValueAtTime(.045,audio.currentTime);g.gain.exponentialRampToValueAtTime(.001,audio.currentTime+duration);o.start();o.stop(audio.currentTime+duration)}catch{}}
 function end(){clearInterval(timer);state='over';tone(180,.24);document.querySelector('#face').textContent='💫';document.querySelector('#title').textContent='哎呀，撞到了！';document.querySelector('#message').textContent=`这次吃掉了 ${eaten} 个苹果，得到 ${score} 分。休息一下，再来一局吧。`;startBtn.textContent='再玩一次　↗';overlay.classList.remove('hidden')}
 function tick(){dir=nextDir;let h={x:snake[0].x+dir.x,y:snake[0].y+dir.y};if(h.x<0||h.x>=N||h.y<0||h.y>=N||snake.some((p,i)=>i<snake.length-1&&p.x===h.x&&p.y===h.y)){end();return}snake.unshift(h);if(h.x===food.x&&h.y===food.y){score+=10;eaten++;updateStats();tone(720,.09);if(score>best){best=score;localStorage.setItem('snake-best',best);document.querySelector('#best').innerHTML=String(best).padStart(2,'0')+' <small>分</small>'}placeFood();if(eaten%5===0){clearInterval(timer);timer=setInterval(tick,Math.max(75,145-eaten*3))}}else snake.pop();draw()}
-function begin(){clearInterval(timer);reset();state='playing';overlay.classList.add('hidden');
-  const bgm = document.getElementById('bgm');
-  bgm.play().catch(e=>{});
-}
+function begin(){clearInterval(timer);reset();state='playing';overlay.classList.add('hidden');timer=setInterval(tick,145)}
 function pause(){if(state==='playing'){clearInterval(timer);state='paused';document.querySelector('#face').textContent='⏸️';document.querySelector('#title').textContent='歇一口气';document.querySelector('#message').textContent='小蛇正在等你回来。准备好了就继续吧。';startBtn.textContent='继续游戏　↗';overlay.classList.remove('hidden')}else if(state==='paused'){state='playing';overlay.classList.add('hidden');timer=setInterval(tick,Math.max(75,145-eaten*3))}}
 function setDir(d){if(state==='ready'||state==='over')return;let map={up:{x:0,y:-1},down:{x:0,y:1},left:{x:-1,y:0},right:{x:1,y:0}};let v=map[d];if(v&&!(v.x===-dir.x&&v.y===-dir.y))nextDir=v}
 document.addEventListener('keydown',e=>{let k=e.key.toLowerCase(),m={arrowup:'up',w:'up',arrowdown:'down',s:'down',arrowleft:'left',a:'left',arrowright:'right',d:'right'};if(m[k]){e.preventDefault();setDir(m[k])}else if(k===' '){e.preventDefault();if(state==='playing'||state==='paused')pause()}else if(k==='enter'&&(state==='ready'||state==='over'))begin()});
