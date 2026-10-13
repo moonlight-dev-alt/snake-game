@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="theme-color" content="#101611">
+<title>贪吃蛇 · 小小食堂</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Nunito:wght@500;600;700;800;900&display=swap');
+:root{color-scheme:dark;--bg:#101611;--panel:#18211a;--line:#29362b;--green:#b5f36c;--muted:#839080;--cream:#f5f4e9}
+*{box-sizing:border-box}body{margin:0;min-height:100svh;background:radial-gradient(ellipse at 50% 35%,#202d21 0,#101611 65%);color:var(--cream);font-family:Nunito,"Microsoft YaHei",sans-serif;display:grid;place-items:center;padding:26px 16px}.app{width:min(100%,510px)}
+.top{display:flex;justify-content:space-between;align-items:center;margin:0 3px 16px}.brand{display:flex;align-items:center;gap:11px}.brand-icon{display:grid;place-items:center;width:42px;height:42px;border-radius:14px;background:var(--green);color:#1c2a14;font-size:22px;box-shadow:0 0 28px #b5f33321}.eyebrow{font:500 10px 'DM Mono',monospace;letter-spacing:2px;color:var(--muted);text-transform:uppercase}.brand h1{font-size:19px;line-height:1.05;margin:4px 0 0;font-weight:900;letter-spacing:.2px}.sound{border:1px solid var(--line);background:#18211a;color:#dce6d5;border-radius:12px;width:42px;height:42px;font-size:17px;cursor:pointer}.stats{display:flex;gap:10px;margin-bottom:12px}.stat{flex:1;padding:12px 15px;background:var(--panel);border:1px solid var(--line);border-radius:15px}.stat-label{font:500 10px 'DM Mono',monospace;letter-spacing:1.5px;color:var(--muted)}.stat-num{margin-top:3px;font:500 23px 'DM Mono',monospace;line-height:1.1}.stat-num small{font:500 11px 'DM Mono',monospace;color:var(--muted)}.board-wrap{position:relative;padding:10px;border-radius:22px;background:linear-gradient(145deg,#253327,#171f19);border:1px solid #344235;box-shadow:0 22px 70px #0006}.board{position:relative;overflow:hidden;border-radius:14px;background:#131a14;aspect-ratio:1;touch-action:none}.board canvas{display:block;width:100%;height:100%}.overlay{position:absolute;inset:0;display:grid;place-items:center;background:#101611a8;backdrop-filter:blur(4px);transition:opacity .2s}.overlay.hidden{opacity:0;pointer-events:none}.card{text-align:center;padding:24px}.emoji{font-size:49px;filter:drop-shadow(0 6px 16px #b5f36c30)}.card h2{font-size:23px;margin:7px 0 5px;font-weight:900}.card p{font-size:13px;color:#a2ad9e;line-height:1.7;margin:0 auto 17px;max-width:260px}.primary{border:0;border-radius:12px;background:var(--green);color:#192315;padding:12px 24px;font:800 14px Nunito,sans-serif;cursor:pointer;box-shadow:0 6px 20px #b5f33324;transition:transform .15s,filter .15s}.primary:hover{transform:translateY(-1px);filter:brightness(1.05)}.primary:active{transform:scale(.97)}
+.under{display:flex;justify-content:space-between;align-items:center;margin:13px 4px 0;color:var(--muted);font-size:11px}.key{display:inline-grid;place-items:center;border:1px solid #3a463b;border-radius:5px;min-width:21px;height:20px;padding:0 4px;margin:0 2px;color:#c4cfbf;font:10px 'DM Mono',monospace}.mobile-controls{display:none;grid-template-columns:repeat(3,54px);grid-template-rows:repeat(2,46px);justify-content:center;gap:6px;margin:16px auto 4px}.dpad{border:1px solid var(--line);background:var(--panel);color:#dce6d5;border-radius:12px;font-size:18px;cursor:pointer;touch-action:manipulation}.dpad:active{background:#314131}.up{grid-column:2}.left{grid-column:1;grid-row:2}.down{grid-column:2;grid-row:2}.right{grid-column:3;grid-row:2}.tip{text-align:center;font-size:11px;color:#697667;margin:14px 0 0}.tip span{color:#9fb895}@media(max-width:560px){body{padding:18px 16px}.mobile-controls{display:grid}.under{font-size:10px}.tip{margin-top:10px}.board-wrap{padding:7px}.stats{gap:7px}.stat{padding:10px 12px}}
+</style>
+</head>
+<body>
+<main class="app">
+  <header class="top"><div class="brand"><div class="brand-icon">✳</div><div><div class="eyebrow">SNAKE GAME · NO. 001</div><h1>小小食堂</h1></div></div><button class="sound" id="sound" aria-label="切换音效" title="音效开关">♫</button></header>
+  <section class="stats"><div class="stat"><div class="stat-label">本局得分</div><div class="stat-num" id="score">00</div></div><div class="stat"><div class="stat-label">历史最佳</div><div class="stat-num" id="best">00 <small>分</small></div></div><div class="stat"><div class="stat-label">吃掉苹果</div><div class="stat-num" id="eaten">00</div></div></section>
+  <div class="board-wrap"><div class="board" id="board"><canvas id="game" width="420" height="420" aria-label="贪吃蛇游戏区域"></canvas><div class="overlay" id="overlay"><div class="card"><div class="emoji" id="face">🍎</div><h2 id="title">准备开饭了吗？</h2><p id="message">吃掉苹果，让小蛇长大。别撞到墙，也别咬到自己哦。</p><button class="primary" id="start">开始游戏　↗</button></div></div></div></div>
+  <div class="under"><span>方向键 / WASD 移动</span><span><i class="key">空格</i> 暂停</span></div>
+  <div class="mobile-controls" aria-label="方向控制"><button class="dpad up" data-dir="up">↑</button><button class="dpad left" data-dir="left">←</button><button class="dpad down" data-dir="down">↓</button><button class="dpad right" data-dir="right">→</button></div>
+  <p class="tip">慢慢来，<span>小蛇也有自己的节奏</span></p>
+</main>
+<script>
+(()=>{
+const canvas=document.querySelector('#game'),ctx=canvas.getContext('2d'),overlay=document.querySelector('#overlay'),startBtn=document.querySelector('#start');
+const headArt=new Image(),foodArt=new Image();headArt.src='蛇头.png';foodArt.src='苹果人头.png';
+const N=21,S=20;let snake,dir,nextDir,food,score,eaten,timer,state='ready',sound=true,audio;
+let best=Number(localStorage.getItem('snake-best')||0);document.querySelector('#best').innerHTML=String(best).padStart(2,'0')+' <small>分</small>';
+function rnd(){return Math.floor(Math.random()*N)}function placeFood(){do{food={x:rnd(),y:rnd()}}while(snake.some(p=>p.x===food.x&&p.y===food.y))}
+function reset(){snake=[{x:10,y:10},{x:9,y:10},{x:8,y:10}];dir={x:1,y:0};nextDir=dir;score=0;eaten=0;updateStats();placeFood();draw()}
+function updateStats(){document.querySelector('#score').textContent=String(score).padStart(2,'0');document.querySelector('#eaten').textContent=String(eaten).padStart(2,'0')}
+function rounded(x,y,w,h,r,color){ctx.fillStyle=color;ctx.beginPath();ctx.roundRect(x,y,w,h,r);ctx.fill()}
+function draw(){let z=canvas.width/N;ctx.clearRect(0,0,canvas.width,canvas.height);ctx.fillStyle='#131a14';ctx.fillRect(0,0,canvas.width,canvas.height);
+ ctx.strokeStyle='#ffffff08';ctx.lineWidth=1;for(let i=1;i<N;i++){ctx.beginPath();ctx.moveTo(i*z,0);ctx.lineTo(i*z,canvas.height);ctx.stroke();ctx.beginPath();ctx.moveTo(0,i*z);ctx.lineTo(canvas.width,i*z);ctx.stroke()}
+ // Image two is the collectible; its white backdrop is transparent in the PNG.
+ let fx=(food.x+.5)*z,fy=(food.y+.5)*z;ctx.save();ctx.shadowColor='#ff829055';ctx.shadowBlur=13;if(foodArt.complete&&foodArt.naturalWidth)ctx.drawImage(foodArt,fx-z*.43,fy-z*.43,z*.86,z*.86);else{ctx.fillStyle='#ff7560';ctx.beginPath();ctx.arc(fx,fy,7.1,0,Math.PI*2);ctx.fill()}ctx.restore();
+ snake.forEach((p,i)=>{let pad=2.2,x=p.x*z+pad,y=p.y*z+pad,w=z-pad*2;if(i===0){ctx.save();ctx.translate((p.x+.5)*z,(p.y+.5)*z);ctx.rotate(Math.atan2(dir.y,dir.x));ctx.shadowColor='#c9aafa88';ctx.shadowBlur=11;if(headArt.complete&&headArt.naturalWidth)ctx.drawImage(headArt,-z*.58,-z*.58,z*1.16,z*1.16);else rounded(-w/2,-w/2,w,w,6,'#c4ff7c');ctx.restore()}else{let col=i<3?'#a8e96e':'#83c654';rounded(x,y,w,w,5,col)}})
+}
+function tone(freq=540,duration=.07){if(!sound)return;try{audio??=new(window.AudioContext||window.webkitAudioContext)();let o=audio.createOscillator(),g=audio.createGain();o.connect(g);g.connect(audio.destination);o.frequency.value=freq;o.type='sine';g.gain.setValueAtTime(.045,audio.currentTime);g.gain.exponentialRampToValueAtTime(.001,audio.currentTime+duration);o.start();o.stop(audio.currentTime+duration)}catch{}}
+function end(){clearInterval(timer);state='over';tone(180,.24);document.querySelector('#face').textContent='💫';document.querySelector('#title').textContent='哎呀，撞到了！';document.querySelector('#message').textContent=`这次吃掉了 ${eaten} 个苹果，得到 ${score} 分。休息一下，再来一局吧。`;startBtn.textContent='再玩一次　↗';overlay.classList.remove('hidden')}
+function tick(){dir=nextDir;let h={x:snake[0].x+dir.x,y:snake[0].y+dir.y};if(h.x<0||h.x>=N||h.y<0||h.y>=N||snake.some((p,i)=>i<snake.length-1&&p.x===h.x&&p.y===h.y)){end();return}snake.unshift(h);if(h.x===food.x&&h.y===food.y){score+=10;eaten++;updateStats();tone(720,.09);if(score>best){best=score;localStorage.setItem('snake-best',best);document.querySelector('#best').innerHTML=String(best).padStart(2,'0')+' <small>分</small>'}placeFood();if(eaten%5===0){clearInterval(timer);timer=setInterval(tick,Math.max(75,145-eaten*3))}}else snake.pop();draw()}
+function begin(){clearInterval(timer);reset();state='playing';overlay.classList.add('hidden');timer=setInterval(tick,145)}
+function pause(){if(state==='playing'){clearInterval(timer);state='paused';document.querySelector('#face').textContent='⏸️';document.querySelector('#title').textContent='歇一口气';document.querySelector('#message').textContent='小蛇正在等你回来。准备好了就继续吧。';startBtn.textContent='继续游戏　↗';overlay.classList.remove('hidden')}else if(state==='paused'){state='playing';overlay.classList.add('hidden');timer=setInterval(tick,Math.max(75,145-eaten*3))}}
+function setDir(d){if(state==='ready'||state==='over')return;let map={up:{x:0,y:-1},down:{x:0,y:1},left:{x:-1,y:0},right:{x:1,y:0}};let v=map[d];if(v&&!(v.x===-dir.x&&v.y===-dir.y))nextDir=v}
+document.addEventListener('keydown',e=>{let k=e.key.toLowerCase(),m={arrowup:'up',w:'up',arrowdown:'down',s:'down',arrowleft:'left',a:'left',arrowright:'right',d:'right'};if(m[k]){e.preventDefault();setDir(m[k])}else if(k===' '){e.preventDefault();if(state==='playing'||state==='paused')pause()}else if(k==='enter'&&(state==='ready'||state==='over'))begin()});
+document.querySelectorAll('.dpad').forEach(b=>b.addEventListener('pointerdown',e=>{e.preventDefault();setDir(b.dataset.dir)}));startBtn.addEventListener('click',()=>state==='paused'?pause():begin());document.querySelector('#sound').addEventListener('click',e=>{sound=!sound;e.currentTarget.textContent=sound?'♫':'♪';e.currentTarget.style.opacity=sound?'1':'.5';if(sound)tone()});
+let touch=null;canvas.addEventListener('pointerdown',e=>{touch={x:e.clientX,y:e.clientY}});canvas.addEventListener('pointerup',e=>{if(!touch)return;let dx=e.clientX-touch.x,dy=e.clientY-touch.y;if(Math.max(Math.abs(dx),Math.abs(dy))>18)setDir(Math.abs(dx)>Math.abs(dy)?dx>0?'right':'left':dy>0?'down':'up');touch=null});
+reset();
+})();
+</script>
+</body>
+</html>
